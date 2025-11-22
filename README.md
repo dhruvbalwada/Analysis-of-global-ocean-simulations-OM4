@@ -7,6 +7,7 @@ This repository is a tool which can be used for **fast** analysis of multiple gl
 # Installation
 ```
 git clone https://github.com/m2lines/Analysis-of-global-ocean-simulations-OM4.git
+mkdir -p /scratch/$USER/mom6/cache
 cd Analysis-of-global-ocean-simulations-OM4/data
 wget https://www.ncei.noaa.gov/thredds-ocean/fileServer/ncei/woa/temperature/decav81B0/1.00/woa18_decav81B0_t00_01.nc
 wget https://www.ncei.noaa.gov/thredds-ocean/fileServer/ncei/woa/salinity/decav81B0/1.00/woa18_decav81B0_s00_01.nc
