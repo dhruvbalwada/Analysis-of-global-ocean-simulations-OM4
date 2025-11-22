@@ -78,7 +78,7 @@ class CollectionOfExperiments:
         warnings.filterwarnings("ignore")
         folders = []
         for root, _, _ in os.walk(common_folder):
-            if os.path.isfile(os.path.join(root, additional_subfolder, 'ocean.stats.nc')):
+            if os.path.isfile(os.path.join(root, additional_subfolder, 'ocean.stats.nc')) or os.path.isfile(os.path.join(root, additional_subfolder, 'ocean.stats.merged.nc')):
                 folder = root[len(common_folder)+1:] # Path w.r.t. common_folder
                 folders.append(
                     folder
@@ -204,6 +204,10 @@ class CollectionOfExperiments:
             
             label = labels[ifig]
 
+            def compute_rmse(data):
+                dx = np.cos(np.deg2rad(data.yh)) + data*0
+                return float(np.sqrt((data**2 * dx).sum(skipna=True) / dx.sum(skipna=True)))
+
             if demean:
                 data = select(target(self['unparameterized']))
                 mean_obs = data.mean()
@@ -237,7 +241,7 @@ class CollectionOfExperiments:
                 data = select(field(self[exp]) - target(self[exp]))
                 if demean:
                     data = data - (mean_ctr - mean_obs)
-                rmse = float(np.sqrt(np.nanmean(data**2)))
+                rmse = compute_rmse(data)
                 label = label + ' bias' + f'\n RMSE=%.4f{scale}' % rmse
                 vmin, vmax = range_bias[0:2]
                 cmap = cmap_bias; norm=norm_bias; cilev=cilev_bias
@@ -247,7 +251,7 @@ class CollectionOfExperiments:
                         data = select(field(self[exp]) - target(self[exp]))
                         if demean:
                             data = data - (mean_ctr - mean_obs)
-                        rmse = float(np.sqrt(np.nanmean(data**2)))
+                        rmse = compute_rmse(data)
                         label = label + ' bias' + f'\n RMSE=%.4f{scale}' % rmse
                         bias = data.copy()
                         vmin, vmax = range_bias[0:2]
@@ -261,7 +265,7 @@ class CollectionOfExperiments:
                     try:
                         corr = - np.nanmean(bias * data) / np.sqrt(np.nanmean(bias**2) * np.nanmean(data**2))
                         attenuation = - np.nanmean(bias * data) / np.nanmean(data**2)
-                        rmse = float(np.sqrt(np.nanmean((data+bias)**2)))
+                        rmse = compute_rmse(data+bias)
                         #label = label + ' response' + f'\n RMSE=%.4f{scale}, Corr=%.2f\n to atenuate=%.1f' % (rmse, corr, attenuation)
                         label = label + ' response' + f'\n RMSE=%.4f{scale}' % (rmse)
                     except:
@@ -368,11 +372,11 @@ class CollectionOfExperiments:
                     cmap_bias = plt.cm.RdYlBu_r, 
                     #cmap_bias=cmocean.cm.balance,
                     cmap_field=cmocean.cm.balance,
-                    cilev_bias=cilev(0.5), cilev_field=np.arange(-2,30),
+                    cilev_bias=cilev(0.4), cilev_field=np.arange(-2,30),
                     field = lambda x: x.thetao.isel(zl=zl).sel(time=time_range).mean('time'), 
                     target = lambda x: x.woa_temp.isel(zl=zl),
                     scale = '$^oC$', cmap_label = 'Temperature, $^oC$',
-                    range_field=(None,None), range_bias=(-2.25,2.25),
+                    range_field=(None,None), range_bias=(None,None),
                     ncols=ncols, **kw)
         if zl>0:
             plt.suptitle('Depth=%.1f' % self['unparameterized'].thetao.zl[zl])

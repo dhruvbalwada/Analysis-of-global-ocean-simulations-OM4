@@ -61,7 +61,10 @@ class Experiment:
     ################### Getters for netcdf files as xarrays #####################
     @cached_property
     def series(self):
-        result = xr.open_dataset(os.path.join(self.folder, 'ocean.stats.nc'), decode_times=False)
+        try:
+            result = xr.open_dataset(os.path.join(self.folder, 'ocean.stats.nc'), decode_times=False)
+        except:
+            result = xr.open_dataset(os.path.join(self.folder, 'ocean.stats.merged.nc'), decode_times=False)
         return result
 
     @cached_property
@@ -76,7 +79,12 @@ class Experiment:
         This return the last year of simulation for fast checks of the simulation
         '''
         year = self.Averaging_time.stop
-        result = sort_longitude(xr.open_mfdataset(os.path.join(self.folder, f'{year}*ocean_daily*.nc'), parallel=True, combine='nested', compat='no_conflicts', concat_dim='time', chunks={'time':1}))
+        try:
+            print('Reading last year...')
+            result = sort_longitude(xr.open_mfdataset(os.path.join(self.folder, f'{year}*ocean_daily*.nc'), parallel=True, combine='nested', compat='no_conflicts', concat_dim='time', chunks={'time':1}))
+        except:
+            print('Selecting last year instead')
+            result = sort_longitude(xr.open_mfdataset(os.path.join(self.folder, f'*ocean_daily*.nc'), parallel=True, combine='nested', compat='no_conflicts', concat_dim='time', chunks={'time':1})).sel(time=str(year))
         rename_coordinates(result)
         return result
     
