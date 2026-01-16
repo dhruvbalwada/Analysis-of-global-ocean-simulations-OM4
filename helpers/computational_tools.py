@@ -130,6 +130,9 @@ def select_Gulf(array):
 def select_Kuroshio(array):
     return select_LatLon(array, Lat=(20, 50), Lon=(120,180))
 
+def select_SO_large(array):
+    return select_LatLon(array, Lat=(-90,0), Lon=(-180,180))
+
 def select_SO(array):
     return select_LatLon(array, Lat=(-70,-30), Lon=(-180,180))
 
