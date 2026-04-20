@@ -7,3 +7,10 @@
 *.out
 notebooks/*.nc
 notebooks/some-data/*.nc
+
+# Oversized data files — do not commit
+data/geoRV.nc
+data/geovel.nc
+data/ocean_static.nc
+data/woa18_decav81B0_s00_01.nc
+data/woa18_decav81B0_t00_01.nc
